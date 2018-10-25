@@ -1,14 +1,17 @@
 import numpy as np
 import h5py
 from numba import jit,vectorize
+import datetime as dt
 
-catalogue_cache_path = "/gpfs/data/ddsm49/GALFORM/Cache2/abs_mag/"
+t0 = dt.datetime.now()
+
+cata_cache_path = "/gpfs/data/ddsm49/GALFORM/Cache2/abs_mag/"
 mag_min = -20.0
 mag_max = -19.5
 
-MXXL_path = catalogue_cache_path+"MXXL_"+str(mag_min)+"_"+str(mag_max)+".h5"
-GALFORM_path = catalogue_cache_path+"GALFORM_"+str(mag_min)+"_"+str(mag_max)+".h5"
-Alt_GALFORM_path = catalogue_cache_path+"RusGal_"+str(mag_min)+"_"+str(mag_max)+".h5"
+MXXL_path = cata_cache_path+"MXXL_"+str(mag_min)+"_"+str(mag_max)+".h5"
+GALFORM_path = cata_cache_path+"GALFORM_"+str(mag_min)+"_"+str(mag_max)+".h5"
+Altg_path = cata_cache_path+"RusGal_"+str(mag_min)+"_"+str(mag_max)+".h5"
 picsave_path = "./pics/"
 
 grid_level_ra = [0.001,0.003,0.009,0.027,0.081,0.243,0.729,2.187,6.561,19.683]
@@ -16,11 +19,11 @@ grid_level_dec = [0.001,0.003,0.009,0.027,0.081,0.243,0.729,2.187,6.561,19.683]
 
 #level setting, in degrees
 
-@jit(nopython = True)
+@jit
 def R2D(rad):
     return 180.0*rad/np.pi
 
-@jit(nopython = True)
+@jit
 def D2R(deg):
     return np.pi*deg/180.0
 
@@ -202,12 +205,12 @@ def Corrs(DecSep,RaSep,ra,dec,lev):
     ugixr = np.unique(gixr)
     ugixpr = np.intersect1d(ugix,ugixr,assume_unique=True)
     AngDisStatDR(ugixpr,gix,ra,rar,dec,decr,mas,mas,lev)
-    del gix,ugixpr,ra,dec;gc.collect()
+    #del gix,ugixpr,ra,dec;gc.collect()
     
     # RR
     
     AngDisStat(ugixr,gixr,rar,decr,mas,lev,TyPe = 'RR')
-    del ugixr,gixr,rar,decr,mas;gc.collect()
+    #del ugixr,gixr,rar,decr,mas;gc.collect()
     
     return forward(ugix,ldec,decmin,ramin,DecSep,RaSep)
 
@@ -219,15 +222,27 @@ def Lowestlevel(DecSep,RaSep,Catp):
     return Corrs(DecSep,RaSep,ra,dec,0)
 
 def Main(DecSep,RaSep,Catp):
+    DecSep = np.array(DecSep)
+    RaSep = np.array(RaSep)
     RaSep = D2R(RaSep)
     DecSep = np.sin(D2R(DecSep))
     ra,dec = Lowestlevel(DecSep[0],RaSep[0],Catp)
+    print ("Bottom Level Finished \n")
     for i in range(1,len(DecSep)):
         ra,dec = Corrs(DecSep[i],RaSep[i],ra,dec,i)
+        print ("Level "+str(i)+" Finished \n")
 
 Main(grid_level_dec,grid_level_ra,MXXL_path)
+t1 = dt.datetime.now() - t0
+t0 = dt.datetime.now()
+print ("MXXL 2PCF Finished at "+str(t1)+'\n')
 Main(grid_level_dec,grid_level_ra,GALFORM_path)
-Main(grid_level_dec,grid_level_ra,alt_GALFORM_path)
+t1 = dt.datetime.now() - t0
+t0 = dt.datetime.now()
+print ("GALFORM 2PCF Finished at "+str(t1)+'\n')
+Main(grid_level_dec,grid_level_ra,altg_path)
+t1 = dt.datetime.now() - t0
+print ("Alt_GALFORM 2PCF Finished at "+str(t1)+'\n')
 
 '''
 def Lowestlevel(DecSep,RaSep,Catp):
