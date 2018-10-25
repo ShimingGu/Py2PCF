@@ -7,8 +7,8 @@ mag_min = -20.0
 mag_max = -19.5
 
 MXXL_path = catalogue_cache_path+"MXXL_"+str(mag_min)+"_"+str(mag_max)+".h5"
-GALFORM_path = catalogue_cache_path+"GALF_"+str(mag_min)+"_"+str(mag_max)+".h5"
-Alt_GALFORM_path = catalogue_cache_path+"Altg_"+str(mag_min)+"_"+str(mag_max)+".h5"
+GALFORM_path = catalogue_cache_path+"GALFORM_"+str(mag_min)+"_"+str(mag_max)+".h5"
+Alt_GALFORM_path = catalogue_cache_path+"RusGal_"+str(mag_min)+"_"+str(mag_max)+".h5"
 picsave_path = "./pics/"
 
 grid_level_ra = [0.001,0.003,0.009,0.027,0.081,0.243,0.729,2.187,6.561,19.683]
