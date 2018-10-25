@@ -145,11 +145,11 @@ def InvRC(axmi,pnt,axs):
     return axs*(pnt+0.5) + axmi + 0.5*axs
 
 @jit(nopython = True)
-def Index_Decomp_ra(mi,ind,ld,sep)
+def Index_Decomp_ra(mi,ind,ld,sep):
     return InvRC(mi,ind//ld,sep)
 
 @jit(nopython = True)
-def Index_Decomp_dec(mi,ind,ld,sep)
+def Index_Decomp_dec(mi,ind,ld,sep):
     return InvRC(mi,ind%ld,sep)
 
 @jit
